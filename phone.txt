@@ -1,3 +1,2 @@
 1,Apple,iPhone13,128,999.99,New,Aliyev_Kenan
-2,Samsung,GalaxyS22,256,799.50,Used,Mammadli_Nijat
-3,Xiaomi,Redmi12,64,199.99,New,Hasanov_Elvin
+5,Nokia,6300,16,400.00,new,kimse,02389727
