@@ -4,6 +4,8 @@
 #include "PhoneManager.h"
 #include "Phone.h"
 #include "PhoneFileService.h"
+#define MAX_PHONES 1000
+
 
 void loadPhonesFromFile() {
     FILE *fp = fopen(PHONE_FILENAME, "r");
