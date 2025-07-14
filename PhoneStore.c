@@ -1,67 +1,56 @@
-// PhoneManager.c (update)
+// PhoneStore.c - Main menu with save confirmation
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include "PhoneManager.h"
 #include "Phone.h"
+#include "PhoneManager.h"
+#include "PhoneFileService.h"
+#include "PhoneSearchService.h"
+#include "PhoneFilterService.h"
+#include "PhoneSortService.h"
 
-Phone phones[MAX_PHONES];
-int phoneCount = 0;
-
-void addPhone() {
-    Phone p;
-    int exists;
+void menu() {
+    int choice;
     do {
-        exists = 0;
-        printf("ID: ");
-        if (scanf("%d", &p.id) != 1) {
+        printf("\n=== PHONE STORE MENU ===\n");
+        printf("1. Add Phone\n");
+        printf("2. List Phones\n");
+        printf("3. Search Phone\n");
+        printf("4. Filter Phones\n");
+        printf("5. Sort Phones\n");
+        printf("6. Exit\n");
+        printf("Choose: ");
+        if (scanf("%d", &choice) != 1) {
             printf("Invalid input. Please enter a number.\n");
             while (getchar() != '\n');
             continue;
         }
-        for (int i = 0; i < phoneCount; i++) {
-            if (phones[i].id == p.id) {
-                exists = 1;
-                printf("ID already exists. Enter a different ID.\n");
+
+        switch (choice) {
+            case 1: addPhone(); break;
+            case 2: listPhones(); break;
+            case 3: searchPhone(); break;
+            case 4: filterPhones(); break;
+            case 5: sortPhones(); break;
+            case 6:
+                printf("Do you want to save changes to file before exit? (y/n): ");
+                char save;
+                scanf(" %c", &save);
+                if (save == 'y' || save == 'Y') {
+                    savePhonesToFile("phone.txt");
+                    printf("Changes saved.\n");
+                } else {
+                    printf("Changes discarded.\n");
+                }
                 break;
-            }
+            default:
+                printf("Invalid choice. Try again.\n");
         }
-    } while (exists);
-
-    printf("Brand: ");
-    scanf(" %[^\n]", p.brand);
-    printf("Model: ");
-    scanf(" %[^\n]", p.model);
-    printf("Storage (GB): ");
-    scanf("%d", &p.storage);
-    printf("Price: ");
-    scanf("%lf", &p.price);
-    printf("Condition (New/Used): ");
-    scanf(" %[^\n]", p.condition);
-    inputSeller(&p.seller);
-
-
-    phones[phoneCount++] = p;
-    printf("Phone added.\n");
+    } while (choice != 6);
 }
 
-void listPhones() {
-    printf("\nTotal phones: %d\n", phoneCount);
-    for (int i = 0; i < phoneCount; i++) {
-        printPhone(phones[i]);
-    }
-}
-
-void editPhoneByIndex(int index) {
-    printf("Editing phone ID %d:\n", phones[index].id);
-    inputPhone(&phones[index]);
-}
-
-void deletePhoneByIndex(int index) {
-    for (int j = index; j < phoneCount - 1; j++) {
-        phones[j] = phones[j + 1];
-    }
-    phoneCount--;
-    printf("Phone deleted.\n");
+int main() {
+    loadPhonesFromFile("phone.txt");
+    menu();
+    free(phones);
+    return 0;
 }
