@@ -1,2 +1,2 @@
 1,Apple,iPhone13,128,999.99,New,Aliyev_Kenan
-5,Nokia,6300,16,400.00,new,kimse,02389727
+5,Nokia,6300,16,400.0
