@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "Phone.h"
 
-void input(Phone *p) {
+void inputPhone(Phone *p) {
     printf("ID: ");
     scanf("%d", &p->id);
     printf("Brand: ");
