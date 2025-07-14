@@ -1,39 +1,67 @@
+// PhoneManager.c (update)
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include "PhoneManager.h"
-#include "PhoneFileService.h"
+#include "Phone.h"
 
-void searchByBrand();
+Phone phones[MAX_PHONES];
+int phoneCount = 0;
 
-void menu() {
-    int choice;
+void addPhone() {
+    Phone p;
+    int exists;
     do {
-        printf("\n=== PHONE STORE MENU ===\n");
-        printf("1. Add Phone\n");
-        printf("2. List Phones\n");
-        printf("3. Search by Brand\n");
-        printf("4. Edit Phone\n");
-        printf("5. Delete Phone\n");
-        printf("6. Save & Exit\n");
-        printf("Choose: ");
-        scanf("%d", &choice);
-
-        switch (choice) {
-            case 1: addPhone(); break;
-            case 2: listPhones(); break;
-            case 3: searchByBrand(); break;
-            case 4: editPhone(); break;
-            case 5: deletePhone(); break;
-            case 6:
-                savePhonesToFile();
-                printf("Exiting and saving data...\n");
-                break;
-            default: printf("Invalid choice.\n");
+        exists = 0;
+        printf("ID: ");
+        if (scanf("%d", &p.id) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            while (getchar() != '\n');
+            continue;
         }
-    } while (choice != 6);
+        for (int i = 0; i < phoneCount; i++) {
+            if (phones[i].id == p.id) {
+                exists = 1;
+                printf("ID already exists. Enter a different ID.\n");
+                break;
+            }
+        }
+    } while (exists);
+
+    printf("Brand: ");
+    scanf(" %[^\n]", p.brand);
+    printf("Model: ");
+    scanf(" %[^\n]", p.model);
+    printf("Storage (GB): ");
+    scanf("%d", &p.storage);
+    printf("Price: ");
+    scanf("%lf", &p.price);
+    printf("Condition (New/Used): ");
+    scanf(" %[^\n]", p.condition);
+    inputSeller(&p.seller);
+
+
+    phones[phoneCount++] = p;
+    printf("Phone added.\n");
 }
 
-int main() {
-    loadPhonesFromFile();
-    menu();
-    return 0;
+void listPhones() {
+    printf("\nTotal phones: %d\n", phoneCount);
+    for (int i = 0; i < phoneCount; i++) {
+        printPhone(phones[i]);
+    }
+}
+
+void editPhoneByIndex(int index) {
+    printf("Editing phone ID %d:\n", phones[index].id);
+    inputPhone(&phones[index]);
+}
+
+void deletePhoneByIndex(int index) {
+    for (int j = index; j < phoneCount - 1; j++) {
+        phones[j] = phones[j + 1];
+    }
+    phoneCount--;
+    printf("Phone deleted.\n");
 }
