@@ -1,4 +1,4 @@
-// PhoneSortService.c - Sort by any field ASC/DESC
+// PhoneSortService.c - Sort by any field ASC/DESC with error handling
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +6,8 @@
 #include "Phone.h"
 #include "PhoneManager.h"
 
+char sortField[20];
+int sortAsc;
 
 int comparePhones(const void* a, const void* b, const char* field, int asc) {
     const Phone* p1 = (const Phone*)a;
@@ -33,13 +35,20 @@ int comparePhones(const void* a, const void* b, const char* field, int asc) {
 }
 
 int sortComparator(const void* a, const void* b) {
-    extern char sortField[20];
-    extern int sortAsc;
     return comparePhones(a, b, sortField, sortAsc);
 }
 
-char sortField[20];
-int sortAsc;
+int isValidField(const char* field) {
+    const char* validFields[] = {
+        "id", "brand", "model", "storage", "price", "condition", "seller", "seller_name", "seller_phone"
+    };
+    int n = sizeof(validFields) / sizeof(validFields[0]);
+    for (int i = 0; i < n; i++) {
+        if (strcmp(field, validFields[i]) == 0)
+            return 1;
+    }
+    return 0;
+}
 
 void sortPhones() {
     if (phoneCount == 0) {
@@ -48,16 +57,29 @@ void sortPhones() {
     }
 
     printf("Sort by (id/brand/model/storage/price/condition/seller/seller_phone): ");
-    scanf(" %s", sortField);
+    scanf(" %19s", sortField);
+
+    if (!isValidField(sortField)) {
+        printf("Error: Invalid field '%s'. Sorting aborted.\n", sortField);
+        return;
+    }
+
     printf("Order (asc/desc): ");
     char order[10];
-    scanf(" %s", order);
+    scanf(" %9s", order);
+
+    if (strcmp(order, "asc") != 0 && strcmp(order, "desc") != 0) {
+        printf("Error: Invalid sort order '%s'. Use 'asc' or 'desc'.\n", order);
+        return;
+    }
+
     sortAsc = (strcmp(order, "asc") == 0);
 
     qsort(phones, phoneCount, sizeof(Phone), sortComparator);
-    printf("Sorted phones:\n");
+    printf("✅ Phones sorted by %s (%s):\n", sortField, order);
     for (int i = 0; i < phoneCount; i++) {
         printPhone(phones[i]);
     }
 }
+
 
