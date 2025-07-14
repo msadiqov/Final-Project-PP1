@@ -1,2 +1,11 @@
-1,Apple,iPhone13,128,999.99,New,Aliyev_Kenan
-5,Nokia,6300,16,400.0
+1 Apple iPhone12 128 999.99 New Aydin 0501234567
+2 Samsung GalaxyS20 256 799.99 Used Vusal 0512345678
+3 Xiaomi RedmiNote9 64 199.99 New Elvin 0559876543
+4 Nokia Lumia950 32 299.99 Used Leyla 0507654321
+5 Huawei P30 128 499.99 New Kamran 0551239876
+6 OnePlus 8T 256 699.99 New Sevinj 0510987654
+7 Motorola G8 64 249.99 Used Samir 0556789123
+8 Sony Xperia10 128 399.99 New Aysel 0508765432
+9 Google Pixel4 64 599.99 Used Emin 0551122334
+10 LG Velvet 128 449.99 New Farid 0513344556
+
