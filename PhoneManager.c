@@ -4,7 +4,7 @@
 #include "PhoneManager.h"
 #include "Phone.h"
 
-// Dinamik massiv üçün global dəyişənlər
+// Dinamik massiv ücün global dəyişənlər
 Phone *phones = NULL;
 int phoneCount = 0;
 int capacity = 0;
@@ -29,7 +29,7 @@ void addPhone() {
     printf("Enter phone ID: ");
     while (scanf("%d", &p.id) != 1) {
         printf("Invalid input! Enter an integer for ID: ");
-        while (getchar() != '\n'); // buffer təmizlənir
+        while (getchar() != '\n');
     }
     while (1) {
         int duplicate = 0;
