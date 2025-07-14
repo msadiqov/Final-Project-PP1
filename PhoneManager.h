@@ -3,14 +3,12 @@
 
 #include "Phone.h"
 
-#define MAX_PHONES 100
-
-extern Phone phones[MAX_PHONES];
-extern int phoneCount;
+extern Phone *phones;       
+extern int phoneCount;      // Hal-hazırda neçə telefon var
 
 void addPhone();
 void listPhones();
-void editPhone();
-void deletePhone();
+void editPhoneByIndex(int index);
+void deletePhoneByIndex(int index);
 
 #endif
