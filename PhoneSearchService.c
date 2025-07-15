@@ -40,7 +40,7 @@ void searchPhone() {
         else if ((strcmp(field, "seller_name") == 0 || strcmp(field, "seller") == 0) && strcasecmp(value, phones[i].seller.name) == 0)
             match = 1;
         else if (strcmp(field, "seller_phone") == 0 && strcmp(value, phones[i].seller.phone) == 0)
-            match = 1;
+            math = 1;
 
         if (match) {
             found = 1;
@@ -59,6 +59,6 @@ void searchPhone() {
         }
     }
     if (!found) {
-        printf("No matching phones found.\n");
+        printf("No matchig phones found.\n");
     }
 }
