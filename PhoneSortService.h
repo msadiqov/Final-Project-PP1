@@ -1,6 +1,8 @@
 #ifndef PHONESORTSERVICE_H
 #define PHONESORTSERVICE_H
 
-void sortPhones();
+#include "Phone.h"
+
+void sortPhonesByPrice(Phone *phones, int count);
 
 #endif

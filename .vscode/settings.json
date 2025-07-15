@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "phone.h": "c",
+        "phonefileservice.h": "c"
+    }
+}

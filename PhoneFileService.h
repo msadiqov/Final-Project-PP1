@@ -1,9 +1,10 @@
+// PhoneFileService.h
 #ifndef PHONEFILESERVICE_H
 #define PHONEFILESERVICE_H
 
-#define PHONE_FILENAME "phone.txt"
+#include "Phone.h"
 
-void loadPhonesFromFile();
-void savePhonesToFile();
+int loadFromFile(Phone **phones, const char *filename, int *capacity);
+int saveToFile(Phone *phones, int count, const char *filename);
 
 #endif

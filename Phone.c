@@ -1,28 +1,27 @@
 #include <stdio.h>
+#include <string.h>
 #include "Phone.h"
 
 void inputPhone(Phone *p) {
-    printf("ID: ");
+    printf("Enter ID: ");
     scanf("%d", &p->id);
-    printf("Brand: ");
-    scanf(" %[^\n]", p->brand);
-    printf("Model: ");
-    scanf(" %[^\n]", p->model);
-    printf("Storage (GB): ");
+    printf("Enter Brand: ");
+    scanf("%s", p->brand);
+    printf("Enter Model: ");
+    scanf("%s", p->model);
+    printf("Enter Storage (GB): ");
     scanf("%d", &p->storage);
-    printf("Price: ");
+    printf("Enter Price: ");
     scanf("%lf", &p->price);
-    printf("Condition (New/Used): ");
-    scanf(" %[^\n]", p->condition);
-    inputSeller(&p->seller);
+    printf("Enter Condition (new/used): ");
+    scanf("%s", p->condition);
+    printf("Enter Seller Name: ");
+    scanf("%s", p->seller.name);
+
 }
 
-void printPhone(Phone p) {
-    printf("\n--- Phone ID %d ---\n", p.id);
-    printf("Brand: %s\n", p.brand);
-    printf("Model: %s\n", p.model);
-    printf("Storage: %d GB\n", p.storage);
-    printf("Price: %.2f\n", p.price);
-    printf("Condition: %s\n", p.condition);
-    printSeller(p.seller);
+void printPhone(const Phone *p) {
+    printf("ID: %d | %s %s | Storage: %dGB | Price: %.2f | Condition: %s\n",
+           p->id, p->brand, p->model, p->storage, p->price, p->condition);
+    printf("Seller: %s\n", p->seller.name);
 }

@@ -1,89 +1,61 @@
-// PhoneManager.c (updated full version with validation)
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include "PhoneManager.h"
+#include <string.h>
 #include "Phone.h"
+#include "PhoneManager.h"
+#include "PhoneFileService.h"
+#include "PhoneSearchService.h"
+#include "PhoneSortService.h"
 
-Phone *phones = NULL;
-int phoneCount = 0;
-int capacity = 0;
 
-void ensureCapacity() {
-    if (phoneCount >= capacity) {
-        capacity = (capacity == 0) ? 10 : capacity * 2;
-        phones = realloc(phones, capacity * sizeof(Phone));
-        if (!phones) {
-            printf("Memory allocation failed.\n");
-            exit(1);
-        }
-    }
-}
+#define FILE_NAME "phone.txt"
 
-void addPhone() {
-    ensureCapacity();
-    Phone p;
-    int exists;
+int main() {
+    Phone *phones = NULL;
+    int count = 0, capacity = 5;
+    int choice;
+
+    count = loadFromFile(&phones, FILE_NAME, &capacity);
+
     do {
-        exists = 0;
-        printf("ID: ");
-        if (scanf("%d", &p.id) != 1) {
-            printf("Invalid input. Please enter a number.\n");
-            while (getchar() != '\n');
-            continue;
+        printf("\n==== PHONE STORE ====\n");
+        printf("Total Phones: %d\n", count);
+        printf("1. Add Phone\n2. List Phones\n3. Search by Brand\n4. Filter\n5. Sort by Price\n6. Exit\nChoice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) {
+            addPhone(&phones, &count, &capacity);
+        } else if (choice == 2) {
+            listPhones(phones, count);
+        } else if (choice == 3) {
+            char brand[30];
+            printf("Enter brand: ");
+            scanf("%s", brand);
+            int rc;
+            int *res = searchByBrand(phones, count, brand, &rc);
+            for (int i = 0; i < rc; i++) printPhone(&phones[res[i]]);
+            free(res);
+        } else if (choice == 4) {
+            char cond[20], seller[50];
+            double minPrice;
+            printf("Condition (or -): "); scanf("%s", cond);
+            printf("Min price (or -1): "); scanf("%lf", &minPrice);
+            printf("Seller name (or -): "); scanf("%s", seller);
+            int rc;
+            int *res = filterPhones(phones, count, cond, minPrice, seller, &rc);
+            for (int i = 0; i < rc; i++) printPhone(&phones[res[i]]);
+            free(res);
+        } else if (choice == 5) {
+            sortPhonesByPrice(phones, count);
+            printf("Sorted by price.\n");
+        } else if (choice == 6) {
+            char save;
+            printf("Save changes? (y/n): ");
+            scanf(" %c", &save);
+            if (save == 'y' || save == 'Y') saveToFile(phones, count, FILE_NAME);
         }
-        for (int i = 0; i < phoneCount; i++) {
-            if (phones[i].id == p.id) {
-                exists = 1;
-                printf("ID already exists. Enter a different ID.\n");
-                break;
-            }
-        }
-    } while (exists);
+    } while (choice != 6);
 
-    printf("Brand: ");
-    scanf(" %[^]", p.brand);
-    printf("Model: ");
-    scanf(" %[^]", p.model);
-    printf("Storage (GB): ");
-    while (scanf("%d", &p.storage) != 1) {
-        printf("Invalid input. Enter a number for storage: ");
-        while (getchar() != '\n');
-    }
-    printf("Price: ");
-    while (scanf("%lf", &p.price) != 1) {
-        printf("Invalid input. Enter a valid price: ");
-        while (getchar() != '\n');
-    }
-    printf("Condition (New/Used): ");
-    scanf(" %[^]", p.condition);
-    inputSeller(&p.seller);
-
-    phones[phoneCount++] = p;
-    printf("Phone added.\n");
-}
-
-void listPhones() {
-    printf("\nTotal phones: %d\n", phoneCount);
-    for (int i = 0; i < phoneCount; i++) {
-        printPhone(phones[i]);
-    }
-}
-
-void editPhoneByIndex(int index) {
-    if (index >= 0 && index < phoneCount) {
-        printf("Editing phone ID %d:\n", phones[index].id);
-        inputPhone(&phones[index]);
-    }
-}
-
-void deletePhoneByIndex(int index) {
-    if (index >= 0 && index < phoneCount) {
-        for (int j = index; j < phoneCount - 1; j++) {
-            phones[j] = phones[j + 1];
-        }
-        phoneCount--;
-        printf("Phone deleted.\n");
-    }
+    free(phones);
+    return 0;
 }

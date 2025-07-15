@@ -1,56 +1,32 @@
+#include "PhoneFileService.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "PhoneManager.h"
-#include "Phone.h"
-#include "PhoneFileService.h"
-#define MAX_PHONES 1000
 
+int loadFromFile(Phone **phones, const char *filename, int *capacity) {
+    FILE *file = fopen(filename, "rb");
+    if (!file) return 0;
 
-void loadPhonesFromFile() {
-    FILE *fp = fopen(PHONE_FILENAME, "r");
-    if (fp == NULL) {
-        printf("No existing phone data found. Starting fresh.\n");
-        return;
+    int phoneCount = 0;
+    fread(&phoneCount, sizeof(int), 1, file);
+
+    *capacity = phoneCount > 5 ? phoneCount : 5;
+    *phones = realloc(*phones, (*capacity) * sizeof(Phone));
+    if (*phones == NULL) {
+        fclose(file);
+        return 0;
     }
 
-    phoneCount = 0;
-    while (fscanf(fp, "%d,%49[^,],%49[^,],%d,%lf,%19[^,],%49[^,],%19[^\n]\n",
-                  &phones[phoneCount].id,
-                  phones[phoneCount].brand,
-                  phones[phoneCount].model,
-                  &phones[phoneCount].storage,
-                  &phones[phoneCount].price,
-                  phones[phoneCount].condition,
-                  phones[phoneCount].seller.name,
-                  phones[phoneCount].seller.phone) == 8) {
-        phoneCount++;
-        if (phoneCount >= MAX_PHONES) break;
-    }
-
-    fclose(fp);
-    printf("%d phones loaded from file.\n", phoneCount);
+    fread(*phones, sizeof(Phone), phoneCount, file);
+    fclose(file);
+    return phoneCount;
 }
 
-void savePhonesToFile() {
-    FILE *fp = fopen(PHONE_FILENAME, "w");
-    if (fp == NULL) {
-        printf("Error saving to file.\n");
-        return;
-    }
+int saveToFile(Phone *phones, int count, const char *filename) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) return 0;
 
-    for (int i = 0; i < phoneCount; i++) {
-        fprintf(fp, "%d,%s,%s,%d,%.2f,%s,%s,%s\n",
-                phones[i].id,
-                phones[i].brand,
-                phones[i].model,
-                phones[i].storage,
-                phones[i].price,
-                phones[i].condition,
-                phones[i].seller.name,
-                phones[i].seller.phone);
-    }
-
-    fclose(fp);
-    printf("Phones saved to file '%s'.\n", PHONE_FILENAME);
+    fwrite(&count, sizeof(int), 1, file);
+    fwrite(phones, sizeof(Phone), count, file);
+    fclose(file);
+    return 1;
 }

@@ -1,19 +1,24 @@
+// Phone.h
 #ifndef PHONE_H
 #define PHONE_H
 
-#include "Seller.h"
+typedef struct Seller {
+    char name[50];
+    // other fields if any
+} Seller;
 
-typedef struct {
+typedef struct Phone {
     int id;
     char brand[50];
     char model[50];
     int storage;
     double price;
-    char condition[20]; // New / Used
+    char condition[20];
     Seller seller;
 } Phone;
 
-void inputPhone(Phone *p);
-void printPhone(Phone p);
+void printPhone(const Phone *p);  // change here to const
+
+void inputPhone(Phone *p);  // input can remain non-const
 
 #endif
