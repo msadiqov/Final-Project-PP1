@@ -1,11 +1,19 @@
 #ifndef PHONEMANAGER_H
 #define PHONEMANAGER_H
 
-#include "Phone.h"
+#include "main.h"
 
-void addPhone(Phone **phones, int *count, int *capacity);
-void listPhones(Phone *phones, int count);
-void editPhone(Phone *phones, int count, int id);
-void deletePhone(Phone *phones, int *count, int id);
+extern Phone *phones;
+extern int phoneCount;
+extern int capacity;
+
+void ensureCapacity();
+void addPhone();
+void listPhones();
+void editPhone();
+void deletePhone();
+void searchPhones();
+void sortPhones();
+void filterPhones();
 
 #endif
