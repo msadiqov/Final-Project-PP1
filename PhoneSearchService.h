@@ -2,5 +2,6 @@
 #define PHONESEARCHSERVICE_H
 
 void searchPhone();
+void searchPhoneByBrand(const char* brand);
 
-#endiff
+#endif
