@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 #include "PhoneManager.h"
 
 Phone *phones = NULL;
@@ -41,7 +43,7 @@ void addPhone() {
     inputPhone(&phones[phoneCount++]);
     printf(">>> Phone added successfully.\n");
 }
-
+                                        //*************************************LISTING***************** 
 void listPhones() {
     if (phoneCount == 0) {
         printf("\n  No phones available to display.\n");
@@ -129,60 +131,152 @@ void searchPhones() {
     }
     if (!found) printf(">>> No phones found with term '%s'\n", term);
 }
-
+                                       // ************************************SORTING****************************
 void sortPhones() {
-    printf("Sort by:\n\t1. Brand\t2. Model\t3. Price\t4. Storage\nChoice: ");
-    int c;
-    scanf("%d", &c);
+    char field[20], order[10];
+    int ascending = 1;
 
-    if (c < 1 || c > 4) {
-        printf(">>> Invalid choice. Please choose between 1 and 4.\n");
+    printf("Sort by (id/brand/model/price/storage/condition/seller): ");
+    scanf("%s", field);
+    printf("Order (asc/desc): ");
+    scanf("%s", order);
+
+    if (strcasecmp(order, "desc") == 0) {
+        ascending = 0;
+    } else if (strcasecmp(order, "asc") != 0) {
+        printf(">>> Invalid sort order. Use 'asc' or 'desc'.\n");
         return;
     }
 
+    // Normalize field
+    for (int i = 0; field[i]; i++) {
+        field[i] = tolower(field[i]);
+    }
+
+    int valid = 1;
+
     for (int i = 0; i < phoneCount - 1; i++) {
         for (int j = i + 1; j < phoneCount; j++) {
-            int swap = 0;
-            if ((c == 1 && strcmp(phones[i].brand, phones[j].brand) > 0) ||
-                (c == 2 && strcmp(phones[i].model, phones[j].model) > 0) ||
-                (c == 3 && phones[i].price > phones[j].price) ||
-                (c == 4 && phones[i].storage > phones[j].storage)) {
-                swap = 1;
+            int cmp = 0;
+
+            if (strcmp(field, "id") == 0) {
+                cmp = phones[i].id - phones[j].id;
+            } else if (strcmp(field, "brand") == 0) {
+                cmp = strcasecmp(phones[i].brand, phones[j].brand);
+            } else if (strcmp(field, "model") == 0) {
+                cmp = strcasecmp(phones[i].model, phones[j].model);
+            } else if (strcmp(field, "price") == 0) {
+                cmp = (phones[i].price > phones[j].price) ? 1 : (phones[i].price < phones[j].price) ? -1 : 0;
+            } else if (strcmp(field, "storage") == 0) {
+                cmp = phones[i].storage - phones[j].storage;
+            } else if (strcmp(field, "condition") == 0) {
+                cmp = strcasecmp(phones[i].condition, phones[j].condition);
+            } else if (strcmp(field, "seller") == 0) {
+                cmp = strcasecmp(phones[i].seller.name, phones[j].seller.name);
+            } else {
+                valid = 0;
+                break;
             }
-            if (swap) {
+
+            if ((ascending && cmp > 0) || (!ascending && cmp < 0)) {
                 Phone tmp = phones[i];
                 phones[i] = phones[j];
                 phones[j] = tmp;
             }
         }
+        if (!valid) break;
     }
 
-    printf(">>> Phones sorted successfully.\n");
-    listPhones();  //show sorted result
+    if (!valid) {
+        printf(">>> Invalid sort field. Please try again.\n");
+        return;
+    }
+
+    printf(">>> Phones sorted by %s (%s):\n", field, ascending ? "ASC" : "DESC");
+    listPhones();
 }
 
 
+                              //****************************************FILTERING****************** */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
 void filterPhones() {
-    char cond[20], seller[50];
-    double minPrice;
+    char brand[50] = "", model[50] = "", condition[20] = "", sellerName[50] = "";
+    char minPriceStr[20], maxPriceStr[20], storageStr[20];
 
-    printf("Condition (new/used): ");
-    scanf("%s", cond);
-    printf("Minimum price: ");
-    scanf("%lf", &minPrice);
-    printf("Seller name: ");
-    scanf("%s", seller);
+    printf("\n--- FILTER PHONES ---\n");
+    printf("Leave blank (just press Enter) to skip a field.\n");
 
-    int found = 0;
+    printf("Brand: ");
+    fgets(brand, sizeof(brand), stdin);
+    brand[strcspn(brand, "\n")] = 0;
+
+    printf("Model: ");
+    fgets(model, sizeof(model), stdin);
+    model[strcspn(model, "\n")] = 0;
+
+    printf("Condition (New/Used): ");
+    fgets(condition, sizeof(condition), stdin);
+    condition[strcspn(condition, "\n")] = 0;
+
+    printf("Min Price: ");
+    fgets(minPriceStr, sizeof(minPriceStr), stdin);
+    minPriceStr[strcspn(minPriceStr, "\n")] = 0;
+
+    printf("Max Price: ");
+    fgets(maxPriceStr, sizeof(maxPriceStr), stdin);
+    maxPriceStr[strcspn(maxPriceStr, "\n")] = 0;
+
+    printf("Storage (GB): ");
+    fgets(storageStr, sizeof(storageStr), stdin);
+    storageStr[strcspn(storageStr, "\n")] = 0;
+
+    printf("Seller Name: ");
+    fgets(sellerName, sizeof(sellerName), stdin);
+    sellerName[strcspn(sellerName, "\n")] = 0;
+
+    // Parse numbers
+    double minPrice = strlen(minPriceStr) == 0 ? 0.0 : atof(minPriceStr);
+    double maxPrice = strlen(maxPriceStr) == 0 ? 1e9 : atof(maxPriceStr);
+    int storage = strlen(storageStr) == 0 ? -1 : atoi(storageStr);
+
+    // Header
+    printf("\n%-6s %-15s %-15s %-12s %-12s %-15s %-20s %-15s\n",
+           "ID", "Brand", "Model", "Storage", "Price", "Condition", "Seller Name", "Seller Phone");
+    printf("------------------------------------------------------------------------------------------------------------\n");
+
+    int count = 0, newCount = 0, usedCount = 0;
+
     for (int i = 0; i < phoneCount; i++) {
-        if (strcmp(phones[i].condition, cond) == 0 &&
-            phones[i].price >= minPrice &&
-            strcmp(phones[i].seller.name, seller) == 0) {
-            printPhone(&phones[i]);
-            found = 1;
-        }
+        Phone *p = &phones[i];
+
+        if (strlen(brand) > 0 && strcasecmp(p->brand, brand) != 0) continue;
+        if (strlen(model) > 0 && strcasecmp(p->model, model) != 0) continue;
+        if (strlen(condition) > 0 && strcasecmp(p->condition, condition) != 0) continue;
+        if (p->price < minPrice || p->price > maxPrice) continue;
+        if (storage != -1 && p->storage != storage) continue;
+        if (strlen(sellerName) > 0 && strcasecmp(p->seller.name, sellerName) != 0) continue;
+
+        printf("%-6d %-15s %-15s %-12d %-12.2f %-15s %-20s %-15s\n",
+               p->id, p->brand, p->model, p->storage, p->price, p->condition, p->seller.name, p->seller.phone);
+
+        count++;
+        if (strcasecmp(p->condition, "new") == 0) newCount++;
+        else if (strcasecmp(p->condition, "used") == 0) usedCount++;
     }
-    if (!found) {
-        printf("No phones match the filter criteria.\n");
+
+    if (count == 0) {
+        printf("No matching phones found.\n");
+    } else {
+        printf("\n>>> Filtered phones: %d\n", count);
+        printf(">>> New: %d | Used: %d\n", newCount, usedCount);
     }
 }

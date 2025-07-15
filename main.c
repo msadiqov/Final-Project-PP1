@@ -14,8 +14,8 @@ int main() {
         printf("\t\tWelcome to PhonetiCode\n");
         printf("========================================================\n");
         printf("\t1>> Add Phone\t\t 2>> List Phones\n");
-        printf("\t3>> Search Phone\t 4>> Sort Phones\n");
-        printf("\t5>> Filter Phones\t 6>> Save & Exit\n");
+        printf("\t3>> Search Phone\t 4>> Filter Phones\n");
+        printf("\t5>> Sort Phones\t\t 6>> Save & Exit\n");
         printf("=========================================================\n");
         printf("Choose an option (1-6): ");
         scanf("%d", &choice);
