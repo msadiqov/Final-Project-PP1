@@ -9,6 +9,7 @@
 char sortField[20];
 int sortAsc;
 
+// Compare two phones based on a given field and sort direction (asc/desc)
 int comparePhones(const void* a, const void* b, const char* field, int asc) {
     const Phone* p1 = (const Phone*)a;
     const Phone* p2 = (const Phone*)b;
@@ -38,6 +39,7 @@ int sortComparator(const void* a, const void* b) {
     return comparePhones(a, b, sortField, sortAsc);
 }
 
+// Minimal check if the sort order is valid
 int isValidField(const char* field) {
     const char* validFields[] = {
         "id", "brand", "model", "storage", "price", "condition", "seller", "seller_name", "seller_phone"
@@ -74,7 +76,8 @@ void sortPhones() {
     }
 
     sortAsc = (strcmp(order, "asc") == 0);
-
+    
+     // Perform sorting
     qsort(phones, phoneCount, sizeof(Phone), sortComparator);
     printf("✅ Phones sorted by %s (%s):\n", sortField, order);
     for (int i = 0; i < phoneCount; i++) {
