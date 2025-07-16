@@ -68,6 +68,8 @@ int isValidPhone(const char *s) {
 void inputPhone(Phone *p) {
     char buffer[100];
 
+    int option;
+
     // ID
     while (1) {
         printf("Enter ID: ");
