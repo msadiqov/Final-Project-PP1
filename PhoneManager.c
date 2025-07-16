@@ -9,6 +9,11 @@ Phone *phones = NULL;
 int phoneCount = 0;
 int capacity = 0;
 
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+} 
+
 void ensureCapacity() {
     if (phoneCount >= capacity) {
         capacity = capacity == 0 ? 5 : capacity * 2;
@@ -20,15 +25,152 @@ void ensureCapacity() {
     }
 }
 
+int isValidString(const char *s) {
+    for (int i = 0; s[i]; i++) {
+        if (!isalpha(s[i]) && s[i] != ' ')
+            return 0;
+    }
+    return 1;
+}
+
+int isValidInteger(const char *s) {
+    if (s[0] == '\0') return 0;
+    for (int i = 0; s[i]; i++) {
+        if (!isdigit(s[i]))
+            return 0;
+    }
+    return 1;
+}
+
+int isValidDouble(const char *s) {
+    int dotCount = 0;
+    if (s[0] == '\0') return 0;
+    for (int i = 0; s[i]; i++) {
+        if (s[i] == '.') {
+            dotCount++;
+            if (dotCount > 1) return 0;
+        } else if (!isdigit(s[i])) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int isValidPhone(const char *s) {
+    for (int i = 0; s[i]; i++) {
+        if (!isdigit(s[i]) && s[i] != '+' && s[i] != '-' && s[i] != ' ')
+            return 0;
+    }
+    return 1;
+}
+
+// Modified inputPhone with validation
 void inputPhone(Phone *p) {
-    printf("Enter ID: "); scanf("%d", &p->id);
-    printf("Enter Brand: "); scanf("%s", p->brand);
-    printf("Enter Model: "); scanf("%s", p->model);
-    printf("Enter Storage (GB): "); scanf("%d", &p->storage);
-    printf("Enter Price: "); scanf("%lf", &p->price);
-    printf("Enter Condition (new/used): "); scanf("%s", p->condition);
-    printf("Enter Seller Name: "); scanf("%s", p->seller.name);
-    printf("Enter Seller Phone: "); scanf("%s", p->seller.phone);
+    char buffer[100];
+
+    // ID
+    while (1) {
+        printf("Enter ID: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (isValidInteger(buffer)) {
+            p->id = atoi(buffer);
+            break;
+        } else {
+            printf("Invalid ID! Please enter a valid integer.\n");
+        }
+    }
+
+    // Brand
+    while (1) {
+        printf("Enter Brand: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (isValidString(buffer)) {
+            strcpy(p->brand, buffer);
+            break;
+        } else {
+            printf("Invalid Brand! Only letters and spaces allowed.\n");
+        }
+    }
+
+    // Model
+    while (1) {
+        printf("Enter Model: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (isValidString(buffer)) {
+            strcpy(p->model, buffer);
+            break;
+        } else {
+            printf("Invalid Model! Only letters and spaces allowed.\n");
+        }
+    }
+
+    // Storage
+    while (1) {
+        printf("Enter Storage (GB): ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (isValidInteger(buffer)) {
+            p->storage = atoi(buffer);
+            break;
+        } else {
+            printf("Invalid Storage! Enter a number.\n");
+        }
+    }
+
+    // Price
+    while (1) {
+        printf("Enter Price: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (isValidDouble(buffer)) {
+            p->price = atof(buffer);
+            break;
+        } else {
+            printf("Invalid Price! Use numbers (e.g. 199.99).\n");
+        }
+    }
+
+    // Condition
+    while (1) {
+        printf("Enter Condition (new/used): ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (strcasecmp(buffer, "new") == 0 || strcasecmp(buffer, "used") == 0) {
+            strcpy(p->condition, buffer);
+            break;
+        } else {
+            printf("Enter only 'new' or 'used'.\n");
+        }
+    }
+
+    // Seller Name
+    while (1) {
+        printf("Enter Seller Name: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (isValidString(buffer)) {
+            strcpy(p->seller.name, buffer);
+            break;
+        } else {
+            printf("Invalid Name! Only letters and spaces allowed.\n");
+        }
+    }
+
+    // Seller Phone
+    while (1) {
+        printf("Enter Seller Phone: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = 0;
+        if (isValidPhone(buffer)) {
+            strcpy(p->seller.phone, buffer);
+            break;
+        } else {
+            printf("Invalid Phone! Only digits, '+', '-' allowed.\n");
+        }
+    }
 }
 
 void printPhone(const Phone *p) {
@@ -118,7 +260,7 @@ void listDistinctValues(const char *field) {
         }
     }
 
-    printf("Existing values for '%s':\n", field);
+    printf(">>> \nExisting values for '%s':\n", field);
     for (int i = 0; i < count; i++) {
         printf(" - %s\n", distinct[i]);
     }
@@ -130,7 +272,7 @@ void searchPhones() {
         return;
     }
 
-    char key[20];
+    char key[20], line[100];
     const char *allowedFields[] = {"id", "brand", "model", "storage", "price", "condition", "seller"};
 
     // Choose field
@@ -155,8 +297,9 @@ void searchPhones() {
     while (1) {
         char value[100];
         printf("Enter value (or 'exit' to quit): ");
-        getchar(); // clear leftover newline
-        fgets(value, sizeof(value), stdin);
+        //getchar(); // clear leftover newline
+        //fgets(value, sizeof(value), stdin);
+        scanf("%s", value);
         value[strcspn(value, "\n")] = '\0';
 
         if (strcasecmp(value, "exit") == 0) {
@@ -165,37 +308,69 @@ void searchPhones() {
         }
 
         int foundCount = 0;
-        for (int i = 0; i < phoneCount; i++) {
-            Phone *p = &phones[i];
-            int match = 0;
+        for (int i = 0; i < phoneCount; /* increment inside loop */) {
+        Phone *p = &phones[i];
+        int match = 0;
 
-            if (strcmp(key, "id") == 0 && atoi(value) == p->id) match = 1;
-            else if (strcmp(key, "brand") == 0 && strcasecmp(p->brand, value) == 0) match = 1;
-            else if (strcmp(key, "model") == 0 && strcasecmp(p->model, value) == 0) match = 1;
-            else if (strcmp(key, "storage") == 0 && atoi(value) == p->storage) match = 1;
-            else if (strcmp(key, "price") == 0 && atof(value) == p->price) match = 1;
-            else if (strcmp(key, "condition") == 0 && strcasecmp(p->condition, value) == 0) match = 1;
-            else if (strcmp(key, "seller") == 0 && strcasecmp(p->seller.name, value) == 0) match = 1;
+        if (strcmp(key, "id") == 0 && atoi(value) == p->id) match = 1;
+        else if (strcmp(key, "brand") == 0 && strcasecmp(p->brand, value) == 0) match = 1;
+        else if (strcmp(key, "model") == 0 && strcasecmp(p->model, value) == 0) match = 1;
+        else if (strcmp(key, "storage") == 0 && atoi(value) == p->storage) match = 1;
+        else if (strcmp(key, "price") == 0 && atof(value) == p->price) match = 1;
+        else if (strcmp(key, "condition") == 0 && strcasecmp(p->condition, value) == 0) match = 1;
+        else if (strcmp(key, "seller") == 0 && strcasecmp(p->seller.name, value) == 0) match = 1;
 
-            if (match) {
-                printf("\n");
-                printPhone(p);
-                foundCount++;
+    if (match) {
+        printf("\n");
+        printPhone(p);
+
+        char line[100];
+        while (1) {
+            printf("Choose: (E)dit \t\t (D)elete \t\t (S)kip \t\t (-2 to finalize search): ");
+            clearInputBuffer();  // clear leftover newline before fgets
+            fgets(line, sizeof(line), stdin);
+            line[strcspn(line, "\n")] = '\0';
+
+            if (strcasecmp(line, "-2") == 0) {
+                printf(">>> Search finalized by user.\n");
+                return;
+            } else if (strcasecmp(line, "e") == 0) {
+                inputPhone(p);
+                printf(">>> Phone updated.\n");
+                i++; // move to next phone
+                break; // exit while loop, continue outer for loop
+            } else if (strcasecmp(line, "d") == 0) {
+                for (int j = i; j < phoneCount - 1; j++) {
+                    phones[j] = phones[j + 1];
+                }
+                phoneCount--;
+                printf(">>> Phone deleted.\n");
+                // Do NOT increment i, as phones shifted left
+                break; // exit while loop, continue outer for loop with same i
+            } else if (strcasecmp(line, "s") == 0) {
+                printf(">>> Skipped.\n");
+                i++; // move to next phone
+                break; // exit while loop, continue outer for loop
+            } else {
+                printf("Invalid choice. Please enter E, D, S, or -2.\n");
             }
         }
+    } else {
+        i++; // move to next phone
+    }
+}
+
 
         if (foundCount == 0) {
-            printf(">>> No matches found for '%s'.\n", value);
+            printf("\n\n>>> No matches found for '%s'.\n", value);
             listDistinctValues(key);
             printf("Try again or type 'exit' to quit.\n");
         } else {
             printf("\n>>> Found %d match(es).\n", foundCount);
-            // You can add edit/delete choice here if you want
             break;
         }
     }
 }
-
 
 
                                        // ************************************SORTING****************************
@@ -265,15 +440,6 @@ void sortPhones() {
 
 
                               //****************************************FILTERING****************** */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
-void clearInputBuffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
 
 void filterPhones() {
     char brand[50] = "", model[50] = "", condition[20] = "", sellerName[50] = "";
