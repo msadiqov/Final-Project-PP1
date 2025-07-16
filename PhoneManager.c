@@ -77,60 +77,127 @@ int findIndexById(int id) {
     return -1;
 }
 
-void editPhone() {
-    int id;
-    printf("Enter ID to edit: ");
-    scanf("%d", &id);
-    int index = findIndexById(id);
-    if (index == -1) {
-        printf("Phone not found.\n");
-        return;
+                        //*********************************************SEARCHING********************************* */
+
+// Helper function to check if a string is already in the list
+int isInList(char list[][50], int size, const char *value) {
+    for (int i = 0; i < size; i++) {
+        if (strcasecmp(list[i], value) == 0) return 1;
     }
-    printf("Editing phone ID %d:\n", id);
-    inputPhone(&phones[index]);
-    printf(">>> Phone updated.\n");
+    return 0;
 }
 
-void deletePhone() {
-    int id;
-    printf("Enter ID to delete: ");
-    scanf("%d", &id);
-    int index = findIndexById(id);
-    if (index == -1) {
-        printf(">>> Phone not found.\n");
-        return;
+void listDistinctValues(const char *field) {
+    char distinct[100][50];
+    int count = 0;
+
+    for (int i = 0; i < phoneCount; i++) {
+        const char *val = NULL;
+        if (strcmp(field, "id") == 0) {
+            char buf[20];
+            sprintf(buf, "%d", phones[i].id);
+            val = buf;
+        } else if (strcmp(field, "brand") == 0) val = phones[i].brand;
+        else if (strcmp(field, "model") == 0) val = phones[i].model;
+        else if (strcmp(field, "storage") == 0) {
+            static char buf[20];
+            sprintf(buf, "%d", phones[i].storage);
+            val = buf;
+        } else if (strcmp(field, "price") == 0) {
+            static char buf[20];
+            sprintf(buf, "%.2f", phones[i].price);
+            val = buf;
+        } else if (strcmp(field, "condition") == 0) val = phones[i].condition;
+        else if (strcmp(field, "seller") == 0) val = phones[i].seller.name;
+
+        // Check if already in distinct list
+        if (val && !isInList(distinct, count, val)) {
+            strncpy(distinct[count], val, 49);
+            distinct[count][49] = '\0';
+            count++;
+        }
     }
-    for (int i = index; i < phoneCount - 1; i++) {
-        phones[i] = phones[i + 1];
+
+    printf("Existing values for '%s':\n", field);
+    for (int i = 0; i < count; i++) {
+        printf(" - %s\n", distinct[i]);
     }
-    phoneCount--;
-    printf(">>> Phone deleted.\n");
 }
 
 void searchPhones() {
-    char term[100];
-    printf("Enter search term (brand/model/condition/seller): ");
-    scanf("%s", term);
-//add asc des and error hand
-    int found = 0;
-    for (int i = 0; i < phoneCount; i++) {
-        if (strstr(phones[i].brand, term) != NULL ||
-            strstr(phones[i].model, term) != NULL ||
-            strstr(phones[i].condition, term) != NULL ||
-            strstr(phones[i].seller.name, term) != NULL) {
-            printPhone(&phones[i]);
-            printf("1. Edit\t2. Delete\t0. Skip\nChoice: ");
-            int c; scanf("%d", &c);
-            if (c == 1) inputPhone(&phones[i]);
-            else if (c == 2) {
-                deletePhone();
-                i--; // adjust index after deletion
+    if (phoneCount == 0) {
+        printf(">>> No phones available.\n");
+        return;
+    }
+
+    char key[20];
+    const char *allowedFields[] = {"id", "brand", "model", "storage", "price", "condition", "seller"};
+
+    // Choose field
+    while (1) {
+        printf("\nSearch by (id/brand/model/storage/price/condition/seller): ");
+        scanf("%s", key);
+
+        for (int i = 0; key[i]; i++) key[i] = tolower(key[i]);
+
+        int valid = 0;
+        for (int i = 0; i < 7; i++) {
+            if (strcmp(key, allowedFields[i]) == 0) {
+                valid = 1;
+                break;
             }
-            found = 1;
+        }
+        if (!valid) {
+            printf(">>> Invalid field. Try again.\n");
+        } else break;
+    }
+
+    while (1) {
+        char value[100];
+        printf("Enter value (or 'exit' to quit): ");
+        getchar(); // clear leftover newline
+        fgets(value, sizeof(value), stdin);
+        value[strcspn(value, "\n")] = '\0';
+
+        if (strcasecmp(value, "exit") == 0) {
+            printf("Exiting search.\n");
+            break;
+        }
+
+        int foundCount = 0;
+        for (int i = 0; i < phoneCount; i++) {
+            Phone *p = &phones[i];
+            int match = 0;
+
+            if (strcmp(key, "id") == 0 && atoi(value) == p->id) match = 1;
+            else if (strcmp(key, "brand") == 0 && strcasecmp(p->brand, value) == 0) match = 1;
+            else if (strcmp(key, "model") == 0 && strcasecmp(p->model, value) == 0) match = 1;
+            else if (strcmp(key, "storage") == 0 && atoi(value) == p->storage) match = 1;
+            else if (strcmp(key, "price") == 0 && atof(value) == p->price) match = 1;
+            else if (strcmp(key, "condition") == 0 && strcasecmp(p->condition, value) == 0) match = 1;
+            else if (strcmp(key, "seller") == 0 && strcasecmp(p->seller.name, value) == 0) match = 1;
+
+            if (match) {
+                printf("\n");
+                printPhone(p);
+                foundCount++;
+            }
+        }
+
+        if (foundCount == 0) {
+            printf(">>> No matches found for '%s'.\n", value);
+            listDistinctValues(key);
+            printf("Try again or type 'exit' to quit.\n");
+        } else {
+            printf("\n>>> Found %d match(es).\n", foundCount);
+            // You can add edit/delete choice here if you want
+            break;
         }
     }
-    if (!found) printf(">>> No phones found with term '%s'\n", term);
 }
+
+
+
                                        // ************************************SORTING****************************
 void sortPhones() {
     char field[20], order[10];
