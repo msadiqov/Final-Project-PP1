@@ -299,9 +299,8 @@ void searchPhones() {
     while (1) {
         char value[100];
         printf("Enter value (or 'exit' to quit): ");
-        //getchar(); // clear leftover newline
-        //fgets(value, sizeof(value), stdin);
-        scanf("%s", value);
+        clearInputBuffer();  // clear newline
+        fgets(value, sizeof(value), stdin);
         value[strcspn(value, "\n")] = '\0';
 
         if (strcasecmp(value, "exit") == 0) {
@@ -310,61 +309,59 @@ void searchPhones() {
         }
 
         int foundCount = 0;
-        for (int i = 0; i < phoneCount; /* increment inside loop */) {
-        Phone *p = &phones[i];
-        int match = 0;
+        for (int i = 0; i < phoneCount;) {
+            Phone *p = &phones[i];
+            int match = 0;
 
-        if (strcmp(key, "id") == 0 && atoi(value) == p->id) match = 1;
-        else if (strcmp(key, "brand") == 0 && strcasecmp(p->brand, value) == 0) match = 1;
-        else if (strcmp(key, "model") == 0 && strcasecmp(p->model, value) == 0) match = 1;
-        else if (strcmp(key, "storage") == 0 && atoi(value) == p->storage) match = 1;
-        else if (strcmp(key, "price") == 0 && atof(value) == p->price) match = 1;
-        else if (strcmp(key, "condition") == 0 && strcasecmp(p->condition, value) == 0) match = 1;
-        else if (strcmp(key, "seller") == 0 && strcasecmp(p->seller.name, value) == 0) match = 1;
+            if (strcmp(key, "id") == 0 && atoi(value) == p->id) match = 1;
+            else if (strcmp(key, "brand") == 0 && strcasecmp(p->brand, value) == 0) match = 1;
+            else if (strcmp(key, "model") == 0 && strcasecmp(p->model, value) == 0) match = 1;
+            else if (strcmp(key, "storage") == 0 && atoi(value) == p->storage) match = 1;
+            else if (strcmp(key, "price") == 0 && atof(value) == p->price) match = 1;
+            else if (strcmp(key, "condition") == 0 && strcasecmp(p->condition, value) == 0) match = 1;
+            else if (strcmp(key, "seller") == 0 && strcasecmp(p->seller.name, value) == 0) match = 1;
 
-    if (match) {
-        printf("\n");
-        printPhone(p);
+            if (match) {
+                foundCount++;  // ✅ FIXED: Count the match!
+                printf("\n");
+                printPhone(p);
 
-        char line[100];
-        while (1) {
-            printf("Choose: (E)dit \t\t (D)elete \t\t (S)kip \t\t (-2 to finalize search): ");
-            clearInputBuffer();  // clear leftover newline before fgets
-            fgets(line, sizeof(line), stdin);
-            line[strcspn(line, "\n")] = '\0';
+                while (1) {
+                    printf("Choose: (E)dit \t (D)elete \t (S)kip \t (-2 to finalize search): ");
+                    fgets(line, sizeof(line), stdin);
+                    line[strcspn(line, "\n")] = '\0';
 
-            if (strcasecmp(line, "-2") == 0) {
-                printf(">>> Search finalized by user.\n");
-                return;
-            } else if (strcasecmp(line, "e") == 0) {
-                inputPhone(p);
-                printf(">>> Phone updated.\n");
-                i++; // move to next phone
-                break; // exit while loop, continue outer for loop
-            } else if (strcasecmp(line, "d") == 0) {
-                for (int j = i; j < phoneCount - 1; j++) {
-                    phones[j] = phones[j + 1];
+                    if (strcasecmp(line, "-2") == 0) {
+                        printf(">>> Search finalized by user.\n");
+                        return;
+                    } else if (strcasecmp(line, "e") == 0) {
+                        inputPhone(p);
+                        printf(">>> Phone updated.\n");
+                        i++; // continue with next phone
+                        break;
+                    } else if (strcasecmp(line, "d") == 0) {
+                        for (int j = i; j < phoneCount - 1; j++) {
+                            phones[j] = phones[j + 1];
+                        }
+                        phoneCount--;
+                        printf(">>> Phone deleted.\n");
+                        // Do NOT increment i; same index now has different phone
+                        break;
+                    } else if (strcasecmp(line, "s") == 0) {
+                        printf(">>> Skipped.\n");
+                        i++;
+                        break;
+                    } else {
+                        printf("Invalid choice. Enter E, D, S, or -2.\n");
+                    }
                 }
-                phoneCount--;
-                printf(">>> Phone deleted.\n");
-                // Do NOT increment i, as phones shifted left
-                break; // exit while loop, continue outer for loop with same i
-            } else if (strcasecmp(line, "s") == 0) {
-                printf(">>> Skipped.\n");
-                i++; // move to next phone
-                break; // exit while loop, continue outer for loop
             } else {
-                printf("Invalid choice. Please enter E, D, S, or -2.\n");
+                i++;
             }
         }
-    } else {
-        i++; // move to next phone
-    }
-}
-
 
         if (foundCount == 0) {
-            printf("\n\n>>> No matches found for '%s'.\n", value);
+            printf("\n>>> No matches found for '%s'.\n", value);
             listDistinctValues(key);
             printf("Try again or type 'exit' to quit.\n");
         } else {
@@ -373,6 +370,7 @@ void searchPhones() {
         }
     }
 }
+
 
 
                                        // ************************************SORTING****************************
